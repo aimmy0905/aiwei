@@ -81,24 +81,14 @@
             </div>
             
             <div class="form-group">
-              <label for="user-target">用户数目标：</label>
+              <label for="progress-target">进度目标(%)：</label>
               <input 
-                id="user-target" 
+                id="progress-target" 
                 type="number" 
-                v-model="formData.userTarget" 
+                v-model="formData.progressTarget" 
                 class="form-control"
                 min="0"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="profit-target">利润目标(元)：</label>
-              <input 
-                id="profit-target" 
-                type="number" 
-                v-model="formData.profitTarget" 
-                class="form-control"
-                min="0"
+                max="100"
               />
             </div>
           </div>
@@ -125,8 +115,7 @@ export default {
         salesTarget: '',
         roiTarget: '',
         rebateTarget: '',
-        userTarget: '',
-        profitTarget: ''
+        progressTarget: ''
       },
       
       // 月份选项
@@ -190,8 +179,7 @@ export default {
       if (!this.formData.salesTarget && 
           !this.formData.roiTarget && 
           !this.formData.rebateTarget && 
-          !this.formData.userTarget && 
-          !this.formData.profitTarget) {
+          !this.formData.progressTarget) {
         alert('请至少设置一项目标！');
         return;
       }
@@ -203,8 +191,7 @@ export default {
         salesTarget: this.formData.salesTarget ? parseFloat(this.formData.salesTarget) : null,
         roiTarget: this.formData.roiTarget ? parseFloat(this.formData.roiTarget) : null,
         rebateTarget: this.formData.rebateTarget ? parseFloat(this.formData.rebateTarget) : null,
-        userTarget: this.formData.userTarget ? parseFloat(this.formData.userTarget) : null,
-        profitTarget: this.formData.profitTarget ? parseFloat(this.formData.profitTarget) : null,
+        progressTarget: this.formData.progressTarget ? parseFloat(this.formData.progressTarget) : null,
         
         // 在实际项目中，这里会使用API保存数据
         createdAt: new Date().toISOString()
@@ -229,8 +216,7 @@ export default {
         salesTarget: '',
         roiTarget: '',
         rebateTarget: '',
-        userTarget: '',
-        profitTarget: ''
+        progressTarget: ''
       };
     },
     

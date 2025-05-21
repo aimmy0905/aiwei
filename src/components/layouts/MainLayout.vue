@@ -9,13 +9,13 @@
         <div class="notification-center">
           <span class="icon notification-icon">
             <i class="notification-badge" v-if="unreadNotifications > 0">{{ unreadNotifications }}</i>
-            🔔
+            <i class="fas fa-bell"></i>
           </span>
         </div>
         <div class="user-center">
-          <span class="icon user-icon">👤</span>
+          <span class="icon user-icon"><i class="fas fa-user"></i></span>
           <span class="username">{{ username }}</span>
-          <span class="dropdown-icon">▼</span>
+          <span class="dropdown-icon"><i class="fas fa-chevron-down"></i></span>
           <!-- 用户下拉菜单 (简化版) -->
           <div class="user-dropdown">
             <ul>
@@ -35,61 +35,67 @@
           <ul class="nav-menu">
             <li class="nav-item" :class="{ active: isActive('dashboard') }">
               <router-link to="/dashboard">
-                <span class="icon">📊</span>
+                <span class="icon"><i class="fas fa-chart-bar"></i></span>
                 <span class="title">数据看板</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('organization') }">
               <router-link to="/organization">
-                <span class="icon">🏢</span>
+                <span class="icon"><i class="fas fa-building"></i></span>
                 <span class="title">组织架构</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('performance') }">
               <router-link to="/performance">
-                <span class="icon">📈</span>
+                <span class="icon"><i class="fas fa-chart-line"></i></span>
                 <span class="title">业绩管理</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('project') }">
               <router-link to="/project">
-                <span class="icon">📋</span>
+                <span class="icon"><i class="fas fa-clipboard-list"></i></span>
                 <span class="title">项目管理</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('service') }">
               <router-link to="/service">
-                <span class="icon">💰</span>
+                <span class="icon"><i class="fas fa-money-bill-wave"></i></span>
                 <span class="title">服务费管理</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('customer') }">
               <router-link to="/customer">
-                <span class="icon">👥</span>
+                <span class="icon"><i class="fas fa-users"></i></span>
                 <span class="title">客户管理</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('activity') }">
               <router-link to="/activity">
-                <span class="icon">🎯</span>
+                <span class="icon"><i class="fas fa-bullseye"></i></span>
                 <span class="title">活动管理</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('product') }">
               <router-link to="/product">
-                <span class="icon">📦</span>
+                <span class="icon"><i class="fas fa-box"></i></span>
                 <span class="title">产品管理</span>
+              </router-link>
+            </li>
+            <li class="nav-item" :class="{ active: isActive('competitor') }">
+              <router-link to="/competitor">
+                <span class="icon"><i class="fas fa-search"></i></span>
+                <span class="title">竞品管理</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('influencer') }">
               <router-link to="/influencer">
-                <span class="icon">🌟</span>
+                <span class="icon"><i class="fas fa-star"></i></span>
                 <span class="title">红人管理</span>
               </router-link>
             </li>
             <li class="nav-item" :class="{ active: isActive('report') }">
               <router-link to="/report">
-                <span class="icon">📝</span>
+                <span class="icon"><i class="fas fa-file-alt"></i></span>
                 <span class="title">周报/月报</span>
               </router-link>
             </li>

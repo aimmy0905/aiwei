@@ -31,13 +31,16 @@
                 <span class="detail-label">预警阈值:</span>
                 <span class="detail-value">￥{{ alert.threshold.toFixed(2) }}</span>
               </div>
+              <div class="detail-item">
+                <span class="detail-label">预估可用天数:</span>
+                <span class="detail-value">{{ calculateEstimatedDays(alert) }}天</span>
+              </div>
               <div class="detail-item" v-if="alert.balance < 100">
                 <span class="detail-note">余额较低，建议尽快充值</span>
               </div>
             </div>
           </div>
           <div class="alert-footer">
-            <button class="action-btn">立即充值</button>
             <button class="action-btn secondary">稍后提醒</button>
           </div>
         </div>
@@ -75,7 +78,6 @@
           </div>
           <div class="alert-footer">
             <button class="action-btn">续费服务</button>
-            <button class="action-btn secondary">查看详情</button>
           </div>
         </div>
       </div>
@@ -98,6 +100,13 @@ export default {
     },
     serviceAlerts() {
       return this.alerts.filter(alert => alert.type === 'service');
+    }
+  },
+  methods: {
+    calculateEstimatedDays(alert) {
+      // 简单估算，假设每天平均消耗10元
+      const dailyConsumption = 10;
+      return Math.round(alert.balance / dailyConsumption);
     }
   }
 }

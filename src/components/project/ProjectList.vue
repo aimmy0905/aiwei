@@ -2,9 +2,14 @@
   <div class="project-list">
     <div class="module-header">
       <h2 class="module-title">项目列表</h2>
-      <button class="add-button" @click="showAddDialog = true">
-        <span class="add-icon">+</span> 新建项目
-      </button>
+      <div class="header-buttons">
+        <button class="import-button" @click="showImportDialog = true">
+          <span class="import-icon">↑</span> 导入项目
+        </button>
+        <button class="add-button" @click="showAddDialog = true">
+          <span class="add-icon">+</span> 新建项目
+        </button>
+      </div>
     </div>
     
     <div class="filter-bar">
@@ -42,6 +47,7 @@
         <thead>
           <tr>
             <th>项目名称</th>
+            <th>客户信息</th>
             <th>项目状态</th>
             <th>项目合作时间</th>
             <th>结束时间</th>
@@ -55,6 +61,7 @@
         <tbody>
           <tr v-for="project in filteredProjects" :key="project.id">
             <td>{{ project.name }}</td>
+            <td>{{ project.clientName || '未设置' }}</td>
             <td>
               <span 
                 class="status-badge" 
@@ -130,6 +137,15 @@
             <input type="text" v-model="projectForm.name" class="form-input" placeholder="请输入项目名称">
           </div>
           <div class="form-group">
+            <label>客户信息</label>
+            <select v-model="projectForm.clientName" class="form-input">
+              <option value="">请选择客户</option>
+              <option v-for="client in clientList" :key="client.id" :value="client.name">
+                {{ client.name }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
             <label>项目状态</label>
             <select v-model="projectForm.status" class="form-input">
               <option value="进行中">进行中</option>
@@ -183,6 +199,46 @@
         <div class="modal-footer">
           <button class="cancel-button" @click="showDeleteConfirm = false">取消</button>
           <button class="delete-button" @click="confirmDelete">确认删除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 项目导入对话框 -->
+    <div class="modal" v-if="showImportDialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>导入项目</h3>
+          <button class="close-button" @click="showImportDialog = false">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="import-instructions">
+            <p>请选择Excel文件（.xlsx或.xls格式）导入项目数据。</p>
+            <p>Excel文件应包含以下列：项目名称、客户信息、项目状态、项目合作时间、结束时间、跟进团队、投放渠道、累计服务费等。</p>
+          </div>
+          
+          <div class="file-upload-container">
+            <input 
+              type="file" 
+              ref="fileInput" 
+              @change="handleFileSelected" 
+              class="file-input" 
+              accept=".xlsx, .xls"
+            >
+            <div class="upload-button" @click="triggerFileInput">
+              选择Excel文件
+            </div>
+            <div class="selected-file" v-if="selectedFile">
+              已选择: {{ selectedFile.name }}
+            </div>
+          </div>
+          
+          <div class="template-download">
+            <a href="#" @click.prevent="downloadTemplate">下载导入模板</a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-button" @click="showImportDialog = false">取消</button>
+          <button class="import-button" @click="importProjects" :disabled="!selectedFile">导入</button>
         </div>
       </div>
     </div>
@@ -278,6 +334,10 @@ export default {
     projects: {
       type: Array,
       required: true
+    },
+    clientList: {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -298,7 +358,8 @@ export default {
         expiryDate: '',
         team: '',
         channels: '',
-        totalFee: 0
+        totalFee: 0,
+        clientName: ''
       },
       showDeleteConfirm: false,
       projectToDelete: null,
@@ -315,7 +376,9 @@ export default {
         { value: '3', label: '3个月' },
         { value: '6', label: '6个月' },
         { value: '12', label: '12个月' }
-      ]
+      ],
+      showImportDialog: false,
+      selectedFile: null
     };
   },
   computed: {
@@ -464,7 +527,8 @@ export default {
         expiryDate: '',
         team: '',
         channels: '',
-        totalFee: 0
+        totalFee: 0,
+        clientName: ''
       };
     },
     
@@ -560,6 +624,56 @@ export default {
       }
       
       this.showRenewDialog = false;
+    },
+    
+    handleFileSelected(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.selectedFile = file;
+      }
+    },
+    
+    triggerFileInput() {
+      const input = this.$refs.fileInput;
+      if (input) {
+        input.click();
+      }
+    },
+    
+    downloadTemplate() {
+      // 实现下载模板的功能
+      console.log('下载导入模板');
+    },
+    
+    importProjects() {
+      // 实现导入项目数据的功能
+      if (!this.selectedFile) {
+        alert('请先选择Excel文件');
+        return;
+      }
+      
+      // 这里需要使用适当的Excel解析库，如xlsx或sheetjs
+      // 以下是模拟导入过程
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          // 模拟导入成功
+          // 注意：真实场景需使用xlsx库解析Excel数据
+          setTimeout(() => {
+            alert('导入成功！已导入5个项目');
+            this.showImportDialog = false;
+            this.selectedFile = null;
+            
+            // 通知父组件刷新数据
+            this.$emit('import-complete');
+          }, 1000);
+        } catch (error) {
+          console.error('导入失败:', error);
+          alert('导入失败，请检查文件格式是否正确');
+        }
+      };
+      
+      reader.readAsArrayBuffer(this.selectedFile);
     }
   }
 };
@@ -583,6 +697,12 @@ export default {
   color: #333;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.import-button,
 .add-button {
   display: flex;
   align-items: center;
@@ -596,10 +716,12 @@ export default {
   transition: background-color 0.2s;
 }
 
+.import-button:hover,
 .add-button:hover {
   background-color: #1565c0;
 }
 
+.import-icon,
 .add-icon {
   margin-right: 6px;
   font-size: 1.2rem;
@@ -1088,5 +1210,39 @@ export default {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
+}
+
+.import-instructions {
+  margin-bottom: 20px;
+}
+
+.file-upload-container {
+  margin-bottom: 20px;
+}
+
+.upload-button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.selected-file {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.template-download {
+  margin-top: 10px;
+}
+
+.template-download a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.template-download a:hover {
+  text-decoration: underline;
 }
 </style> 

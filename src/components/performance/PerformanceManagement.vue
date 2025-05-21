@@ -63,36 +63,6 @@
         </div>
         
         <div class="metric-card">
-          <div class="metric-title">利润目标</div>
-          <div class="metric-value">¥{{ totalProfitTarget.toLocaleString() }}</div>
-          <div class="progress-bar">
-            <div 
-              class="progress-fill" 
-              :style="{ width: profitCompletion + '%', backgroundColor: getCompletionColor(profitCompletion) }"
-            ></div>
-          </div>
-          <div class="completion-info">
-            <span class="completion-percent">{{ profitCompletion }}%</span>
-            <span class="current-value">当前: ¥{{ totalProfitActual.toLocaleString() }}</span>
-          </div>
-        </div>
-        
-        <div class="metric-card">
-          <div class="metric-title">成本目标</div>
-          <div class="metric-value">¥{{ totalCostTarget.toLocaleString() }}</div>
-          <div class="progress-bar">
-            <div 
-              class="progress-fill" 
-              :style="{ width: costCompletion + '%', backgroundColor: getCompletionColor(costCompletion) }"
-            ></div>
-          </div>
-          <div class="completion-info">
-            <span class="completion-percent">{{ costCompletion }}%</span>
-            <span class="current-value">当前: ¥{{ totalCostActual.toLocaleString() }}</span>
-          </div>
-        </div>
-        
-        <div class="metric-card">
           <div class="metric-title">ROI目标</div>
           <div class="metric-value">{{ totalRoiTarget }}%</div>
           <div class="progress-bar">
@@ -108,17 +78,32 @@
         </div>
         
         <div class="metric-card">
-          <div class="metric-title">用户数目标</div>
-          <div class="metric-value">{{ totalUserTarget.toLocaleString() }}</div>
+          <div class="metric-title">返点目标</div>
+          <div class="metric-value">{{ totalRebateTarget }}%</div>
           <div class="progress-bar">
             <div 
               class="progress-fill" 
-              :style="{ width: userCompletion + '%', backgroundColor: getCompletionColor(userCompletion) }"
+              :style="{ width: rebateCompletion + '%', backgroundColor: getCompletionColor(rebateCompletion) }"
             ></div>
           </div>
           <div class="completion-info">
-            <span class="completion-percent">{{ userCompletion }}%</span>
-            <span class="current-value">当前: {{ totalUserActual.toLocaleString() }}</span>
+            <span class="completion-percent">{{ rebateCompletion }}%</span>
+            <span class="current-value">当前: {{ totalRebateActual }}%</span>
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-title">进度目标</div>
+          <div class="metric-value">{{ totalProgressTarget }}%</div>
+          <div class="progress-bar">
+            <div 
+              class="progress-fill" 
+              :style="{ width: progressCompletion + '%', backgroundColor: getCompletionColor(progressCompletion) }"
+            ></div>
+          </div>
+          <div class="completion-info">
+            <span class="completion-percent">{{ progressCompletion }}%</span>
+            <span class="current-value">当前: {{ totalProgressActual }}%</span>
           </div>
         </div>
       </div>
@@ -133,10 +118,9 @@
             <th>员工</th>
             <th>部门</th>
             <th>销售额目标</th>
-            <th>利润目标</th>
-            <th>成本目标</th>
             <th>ROI目标</th>
-            <th>用户数目标</th>
+            <th>返点目标</th>
+            <th>进度目标</th>
             <th>客户评价得分</th>
             <th>个人素质得分</th>
             <th>考核总分</th>
@@ -164,36 +148,6 @@
             </td>
             <td>
               <div class="target-cell">
-                <div class="target-value">¥{{ record.profitTarget.toLocaleString() }}</div>
-                <div class="progress-bar">
-                  <div 
-                    class="progress-fill" 
-                    :style="{ width: record.profitCompletion + '%', backgroundColor: getCompletionColor(record.profitCompletion) }"
-                  ></div>
-                </div>
-                <div class="completion-info">
-                  <span class="completion-percent">{{ record.profitCompletion }}%</span>
-                  <span class="current-value">当前: ¥{{ record.profitActual.toLocaleString() }}</span>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="target-cell">
-                <div class="target-value">¥{{ record.costTarget.toLocaleString() }}</div>
-                <div class="progress-bar">
-                  <div 
-                    class="progress-fill" 
-                    :style="{ width: record.costCompletion + '%', backgroundColor: getCompletionColor(record.costCompletion) }"
-                  ></div>
-                </div>
-                <div class="completion-info">
-                  <span class="completion-percent">{{ record.costCompletion }}%</span>
-                  <span class="current-value">当前: ¥{{ record.costActual.toLocaleString() }}</span>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="target-cell">
                 <div class="target-value">{{ record.roiTarget }}%</div>
                 <div class="progress-bar">
                   <div 
@@ -209,16 +163,31 @@
             </td>
             <td>
               <div class="target-cell">
-                <div class="target-value">{{ record.userTarget.toLocaleString() }}</div>
+                <div class="target-value">{{ record.rebateTarget }}%</div>
                 <div class="progress-bar">
                   <div 
                     class="progress-fill" 
-                    :style="{ width: record.userCompletion + '%', backgroundColor: getCompletionColor(record.userCompletion) }"
+                    :style="{ width: record.rebateCompletion + '%', backgroundColor: getCompletionColor(record.rebateCompletion) }"
                   ></div>
                 </div>
                 <div class="completion-info">
-                  <span class="completion-percent">{{ record.userCompletion }}%</span>
-                  <span class="current-value">当前: {{ record.userActual.toLocaleString() }}</span>
+                  <span class="completion-percent">{{ record.rebateCompletion }}%</span>
+                  <span class="current-value">当前: {{ record.rebateActual }}%</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="target-cell">
+                <div class="target-value">{{ record.progressTarget }}%</div>
+                <div class="progress-bar">
+                  <div 
+                    class="progress-fill" 
+                    :style="{ width: record.progressCompletion + '%', backgroundColor: getCompletionColor(record.progressCompletion) }"
+                  ></div>
+                </div>
+                <div class="completion-info">
+                  <span class="completion-percent">{{ record.progressCompletion }}%</span>
+                  <span class="current-value">当前: {{ record.progressActual }}%</span>
                 </div>
               </div>
             </td>
@@ -257,7 +226,7 @@
             </td>
           </tr>
           <tr v-if="filteredPerformance.length === 0">
-            <td colspan="11" class="empty-message">暂无业绩数据</td>
+            <td colspan="10" class="empty-message">暂无业绩数据</td>
           </tr>
         </tbody>
       </table>
@@ -320,32 +289,82 @@
                 </div>
                 
                 <div class="performance-item">
-                  <div class="performance-header">利润</div>
+                  <div class="performance-header">ROI</div>
                   <div class="performance-content">
                     <div class="target-item">
                       <span>目标：</span>
-                      <strong>¥{{ selectedRecord.profitTarget.toLocaleString() }}</strong>
+                      <strong>{{ selectedRecord.roiTarget }}%</strong>
                     </div>
                     <div class="target-item">
                       <span>实际：</span>
-                      <strong>¥{{ selectedRecord.profitActual.toLocaleString() }}</strong>
+                      <strong>{{ selectedRecord.roiActual }}%</strong>
                     </div>
                     <div class="target-item">
                       <span>完成率：</span>
-                      <strong>{{ selectedRecord.profitCompletion }}%</strong>
+                      <strong>{{ selectedRecord.roiCompletion }}%</strong>
                     </div>
                     <div class="compare-chart">
                       <div class="chart-bar target-bar" :style="{ width: '100%' }"></div>
-                      <div class="chart-bar actual-bar" :style="{ width: selectedRecord.profitCompletion + '%' }"></div>
+                      <div class="chart-bar actual-bar" :style="{ width: selectedRecord.roiCompletion + '%' }"></div>
                       <div class="chart-labels">
                         <span class="target-label">目标</span>
-                        <span class="actual-label">实际 ({{ selectedRecord.profitCompletion }}%)</span>
+                        <span class="actual-label">实际 ({{ selectedRecord.roiCompletion }}%)</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                <!-- 其他指标图表可以添加 -->
+                <div class="performance-item">
+                  <div class="performance-header">返点</div>
+                  <div class="performance-content">
+                    <div class="target-item">
+                      <span>目标：</span>
+                      <strong>{{ selectedRecord.rebateTarget }}%</strong>
+                    </div>
+                    <div class="target-item">
+                      <span>实际：</span>
+                      <strong>{{ selectedRecord.rebateActual }}%</strong>
+                    </div>
+                    <div class="target-item">
+                      <span>完成率：</span>
+                      <strong>{{ selectedRecord.rebateCompletion }}%</strong>
+                    </div>
+                    <div class="compare-chart">
+                      <div class="chart-bar target-bar" :style="{ width: '100%' }"></div>
+                      <div class="chart-bar actual-bar" :style="{ width: selectedRecord.rebateCompletion + '%' }"></div>
+                      <div class="chart-labels">
+                        <span class="target-label">目标</span>
+                        <span class="actual-label">实际 ({{ selectedRecord.rebateCompletion }}%)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="performance-item">
+                  <div class="performance-header">进度</div>
+                  <div class="performance-content">
+                    <div class="target-item">
+                      <span>目标：</span>
+                      <strong>{{ selectedRecord.progressTarget }}%</strong>
+                    </div>
+                    <div class="target-item">
+                      <span>实际：</span>
+                      <strong>{{ selectedRecord.progressActual }}%</strong>
+                    </div>
+                    <div class="target-item">
+                      <span>完成率：</span>
+                      <strong>{{ selectedRecord.progressCompletion }}%</strong>
+                    </div>
+                    <div class="compare-chart">
+                      <div class="chart-bar target-bar" :style="{ width: '100%' }"></div>
+                      <div class="chart-bar actual-bar" :style="{ width: selectedRecord.progressCompletion + '%' }"></div>
+                      <div class="chart-labels">
+                        <span class="target-label">目标</span>
+                        <span class="actual-label">实际 ({{ selectedRecord.progressCompletion }}%)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -1085,6 +1104,30 @@ export default {
     },
     userCompletion() {
       return this.calculateCompletion(this.totalUserActual, this.totalUserTarget);
+    },
+    
+    totalRebateTarget() {
+      // 假设返点目标是一个固定值
+      return 5; // 这里需要根据实际业务逻辑计算
+    },
+    totalRebateActual() {
+      // 假设返点实际是一个固定值
+      return 5; // 这里需要根据实际业务逻辑计算
+    },
+    rebateCompletion() {
+      return 100; // 假设返点完成度是100%
+    },
+    
+    totalProgressTarget() {
+      // 假设进度目标是一个固定值
+      return 100; // 这里需要根据实际业务逻辑计算
+    },
+    totalProgressActual() {
+      // 假设进度实际是一个固定值
+      return 100; // 这里需要根据实际业务逻辑计算
+    },
+    progressCompletion() {
+      return 100; // 假设进度完成度是100%
     }
   },
   methods: {

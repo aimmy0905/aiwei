@@ -25,6 +25,7 @@ const routes = [
   { path: '/customer', component: () => import('./components/customer/CustomerManagement.vue') },
   { path: '/activity', component: () => import('./components/activity/ActivityManagement.vue') },
   { path: '/product', component: () => import('./components/product/ProductManagement.vue') },
+  { path: '/competitor', component: () => import('./components/competitor/CompetitorManagement.vue') },
   { path: '/influencer', component: () => import('./components/influencer/InfluencerManagement.vue') },
   { path: '/report', component: ReportManagement },
   { path: '/report/create', component: CreateReport }

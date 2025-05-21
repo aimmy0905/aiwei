@@ -20,7 +20,7 @@
     </div>
     
     <div class="tab-content">
-      <ProjectList v-if="activeTab === 'list'" :projects="projects" />
+      <ProjectList v-if="activeTab === 'list'" :projects="projects" :clientList="clientList" @import-complete="refreshData" />
       <ProjectTargets v-else-if="activeTab === 'targets'" :projectTargets="projectTargets" :clientList="clientList" :projectList="projects" />
     </div>
   </div>
@@ -147,7 +147,8 @@ export default {
           currentProfit: 112000,
           currentCost: 78500,
           currentRoi: 312,
-          currentUsers: 6532
+          currentUsers: 6532,
+          targetPeriod: 'month'
         },
         {
           id: 2,
@@ -163,7 +164,8 @@ export default {
           currentProfit: 68000,
           currentCost: 42000,
           currentRoi: 290,
-          currentUsers: 4200
+          currentUsers: 4200,
+          targetPeriod: 'month'
         },
         {
           id: 3,
@@ -179,7 +181,8 @@ export default {
           currentProfit: 84000,
           currentCost: 65000,
           currentRoi: 310,
-          currentUsers: 5300
+          currentUsers: 5300,
+          targetPeriod: 'month'
         },
         {
           id: 4,
@@ -195,7 +198,8 @@ export default {
           currentProfit: 42000,
           currentCost: 38000,
           currentRoi: 270,
-          currentUsers: 3800
+          currentUsers: 3800,
+          targetPeriod: 'month'
         },
         {
           id: 5,
@@ -211,7 +215,76 @@ export default {
           currentProfit: 0,
           currentCost: 15000,
           currentRoi: 0,
-          currentUsers: 0
+          currentUsers: 0,
+          targetPeriod: 'month'
+        },
+        {
+          id: 6,
+          projectName: '电商广告投放项目',
+          clientName: '上海某科技有限公司',
+          salesTarget: 1500000,
+          profitTarget: 450000,
+          costTarget: 300000,
+          roiTarget: 400,
+          usersTarget: 30000,
+          targetMonth: '2023-06',
+          currentSales: 850000,
+          currentProfit: 280000,
+          currentCost: 180000,
+          currentRoi: 380,
+          currentUsers: 18500,
+          targetPeriod: 'quarter'
+        },
+        {
+          id: 7,
+          projectName: '品牌推广项目',
+          clientName: '北京某贸易有限公司',
+          salesTarget: 950000,
+          profitTarget: 280000,
+          costTarget: 220000,
+          roiTarget: 340,
+          usersTarget: 25000,
+          targetMonth: '2023-07',
+          currentSales: 420000,
+          currentProfit: 125000,
+          currentCost: 95000,
+          currentRoi: 320,
+          currentUsers: 12000,
+          targetPeriod: 'quarter'
+        },
+        {
+          id: 8,
+          projectName: '电商广告投放项目',
+          clientName: '上海某科技有限公司',
+          salesTarget: 6000000,
+          profitTarget: 1800000,
+          costTarget: 1200000,
+          roiTarget: 450,
+          usersTarget: 120000,
+          targetMonth: '2023-01',
+          currentSales: 3200000,
+          currentProfit: 1050000,
+          currentCost: 750000,
+          currentRoi: 420,
+          currentUsers: 68000,
+          targetPeriod: 'year'
+        },
+        {
+          id: 9,
+          projectName: '品牌推广项目',
+          clientName: '北京某贸易有限公司',
+          salesTarget: 4500000,
+          profitTarget: 1350000,
+          costTarget: 900000,
+          roiTarget: 390,
+          usersTarget: 90000,
+          targetMonth: '2023-01',
+          currentSales: 2100000,
+          currentProfit: 680000,
+          currentCost: 480000,
+          currentRoi: 370,
+          currentUsers: 42000,
+          targetPeriod: 'year'
         }
       ],
       clientList: [
@@ -222,6 +295,26 @@ export default {
         { id: 5, name: '杭州某文化传媒有限公司' }
       ]
     };
+  },
+  methods: {
+    refreshData() {
+      // 在实际应用中，这里应该从API重新获取项目数据
+      console.log('刷新项目数据');
+      // 模拟添加新导入的项目
+      const newProject = {
+        id: this.projects.length + 1,
+        name: '新导入项目-' + (new Date()).toISOString().slice(0, 10),
+        status: '进行中',
+        startDate: new Date().toISOString().slice(0, 10),
+        endDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().slice(0, 10),
+        expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().slice(0, 10),
+        team: '数字营销团队',
+        channels: 'Google Ads, Facebook',
+        totalFee: 80000,
+        clientName: '导入客户示例'
+      };
+      this.projects.push(newProject);
+    }
   }
 };
 </script>

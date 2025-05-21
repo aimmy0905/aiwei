@@ -34,6 +34,30 @@
       </div>
     </div>
     
+    <div class="target-period-tabs">
+      <div 
+        class="period-tab" 
+        :class="{ active: targetPeriodFilter === 'month' }" 
+        @click="targetPeriodFilter = 'month'"
+      >
+        月度目标
+      </div>
+      <div 
+        class="period-tab" 
+        :class="{ active: targetPeriodFilter === 'quarter' }" 
+        @click="targetPeriodFilter = 'quarter'"
+      >
+        季度目标
+      </div>
+      <div 
+        class="period-tab" 
+        :class="{ active: targetPeriodFilter === 'year' }" 
+        @click="targetPeriodFilter = 'year'"
+      >
+        年度目标
+      </div>
+    </div>
+    
     <div class="table-container">
       <table class="data-table">
         <thead>
@@ -45,6 +69,7 @@
             <th>成本目标</th>
             <th>ROI目标</th>
             <th>用户数目标</th>
+            <th>目标周期</th>
             <th>目标月份</th>
             <th>操作</th>
           </tr>
@@ -113,7 +138,12 @@
                 <div class="current-value">当前: {{ formatNumber(target.currentUsers || 0) }}</div>
               </div>
             </td>
-            <td>{{ formatMonth(target.targetMonth) }}</td>
+            <td>
+              <span class="period-badge" :class="'period-' + target.targetPeriod">
+                {{ formatPeriod(target.targetPeriod) }}
+              </span>
+            </td>
+            <td>{{ formatTargetDate(target.targetMonth, target.targetPeriod) }}</td>
             <td class="action-buttons">
               <button class="edit-btn" @click="editTarget(target)">编辑</button>
               <button class="delete-btn" @click="deleteTarget(target)">删除</button>
@@ -173,8 +203,47 @@
             </select>
           </div>
           <div class="form-group">
+            <label>目标周期 <span class="required">*</span></label>
+            <div class="period-options">
+              <div 
+                class="period-option" 
+                :class="{ active: targetForm.targetPeriod === 'month' }"
+                @click="targetForm.targetPeriod = 'month'"
+              >
+                月度目标
+              </div>
+              <div 
+                class="period-option" 
+                :class="{ active: targetForm.targetPeriod === 'quarter' }"
+                @click="targetForm.targetPeriod = 'quarter'"
+              >
+                季度目标
+              </div>
+              <div 
+                class="period-option" 
+                :class="{ active: targetForm.targetPeriod === 'year' }"
+                @click="targetForm.targetPeriod = 'year'"
+              >
+                年度目标
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
             <label>目标月份 <span class="required">*</span></label>
-            <input type="month" v-model="targetForm.targetMonth" class="form-input">
+            <input v-if="targetForm.targetPeriod === 'month'" type="month" v-model="targetForm.targetMonth" class="form-input" placeholder="请选择月份">
+            <select v-else-if="targetForm.targetPeriod === 'quarter'" v-model="targetForm.targetMonth" class="form-input">
+              <option value="">请选择季度</option>
+              <option value="2023-01">2023年第一季度</option>
+              <option value="2023-04">2023年第二季度</option>
+              <option value="2023-07">2023年第三季度</option>
+              <option value="2023-10">2023年第四季度</option>
+            </select>
+            <select v-else-if="targetForm.targetPeriod === 'year'" v-model="targetForm.targetMonth" class="form-input">
+              <option value="">请选择年份</option>
+              <option value="2023-01">2023年</option>
+              <option value="2024-01">2024年</option>
+              <option value="2025-01">2025年</option>
+            </select>
           </div>
           
           <h4 class="section-title">目标设置</h4>
@@ -265,46 +334,47 @@ export default {
         costTarget: '',
         roiTarget: '',
         usersTarget: '',
-        targetMonth: ''
+        targetMonth: '',
+        targetPeriod: 'month'
       },
       showDeleteConfirm: false,
-      targetToDelete: null
+      targetToDelete: null,
+      targetPeriodFilter: 'month'
     };
   },
   computed: {
-    // 筛选后的目标列表
     filteredTargets() {
-      let result = [...this.projectTargets];
-      
-      // 应用客户筛选
-      if (this.clientFilter) {
-        result = result.filter(target => 
-          target.clientName === this.clientFilter
-        );
-      }
-      
-      // 应用项目筛选
-      if (this.projectFilter) {
-        result = result.filter(target => 
-          target.projectName === this.projectFilter
-        );
-      }
-      
-      // 应用月份筛选
-      if (this.monthFilter) {
-        result = result.filter(target => 
-          target.targetMonth.startsWith(this.monthFilter)
-        );
-      }
-      
-      // 分页
-      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-      const endIndex = startIndex + this.itemsPerPage;
-      
-      return result.slice(startIndex, endIndex);
+      return this.projectTargets.filter(target => {
+        // 客户名称过滤
+        if (this.clientFilter && target.clientName !== this.clientFilter) {
+          return false;
+        }
+        
+        // 项目名称过滤
+        if (this.projectFilter && target.projectName !== this.projectFilter) {
+          return false;
+        }
+        
+        // 月份过滤
+        if (this.monthFilter && !target.targetMonth.startsWith(this.monthFilter)) {
+          return false;
+        }
+        
+        // 目标周期过滤
+        if (this.targetPeriodFilter === 'month' && target.targetPeriod !== 'month') {
+          return false;
+        }
+        if (this.targetPeriodFilter === 'quarter' && target.targetPeriod !== 'quarter') {
+          return false;
+        }
+        if (this.targetPeriodFilter === 'year' && target.targetPeriod !== 'year') {
+          return false;
+        }
+        
+        return true;
+      }).slice((this.currentPage - 1) * this.itemsPerPage, this.currentPage * this.itemsPerPage);
     },
     
-    // 总页数
     totalPages() {
       let filteredCount = 0;
       
@@ -333,7 +403,6 @@ export default {
       return Math.ceil(filteredCount / this.itemsPerPage) || 1;
     },
     
-    // 基于选择的客户筛选项目选项
     filteredProjectOptions() {
       if (!this.clientFilter) {
         return this.projectList;
@@ -348,7 +417,6 @@ export default {
       });
     },
     
-    // 基于选择的客户获取可用项目
     availableProjects() {
       if (!this.targetForm.clientName) {
         return [];
@@ -359,12 +427,12 @@ export default {
       return this.projectList;
     },
     
-    // 表单验证
     isFormValid() {
       return (
         this.targetForm.clientName && 
         this.targetForm.projectName && 
         this.targetForm.targetMonth &&
+        this.targetForm.targetPeriod &&
         this.targetForm.salesTarget && 
         this.targetForm.profitTarget && 
         this.targetForm.costTarget && 
@@ -423,12 +491,13 @@ export default {
       this.targetForm = {
         clientName: '',
         projectName: '',
-        salesTarget: '',
-        profitTarget: '',
-        costTarget: '',
-        roiTarget: '',
-        usersTarget: '',
-        targetMonth: ''
+        targetMonth: '',
+        salesTarget: null,
+        profitTarget: null,
+        costTarget: null,
+        roiTarget: null,
+        usersTarget: null,
+        targetPeriod: 'month'
       };
     },
     
@@ -445,6 +514,43 @@ export default {
       
       // 实际项目中应该调用API
       this.closeAddDialog();
+    },
+    
+    formatPeriod(period) {
+      switch (period) {
+        case 'month':
+          return '月度目标';
+        case 'quarter':
+          return '季度目标';
+        case 'year':
+          return '年度目标';
+        default:
+          return '-';
+      }
+    },
+    
+    formatTargetDate(month, period) {
+      if (!month) return '-';
+      const [year, monthNum] = month.split('-');
+      let quarter;
+      
+      switch (period) {
+        case 'month':
+          return `${year}年${monthNum}月`;
+        case 'quarter':
+          switch (monthNum) {
+            case '01': quarter = '第一季度'; break;
+            case '04': quarter = '第二季度'; break;
+            case '07': quarter = '第三季度'; break;
+            case '10': quarter = '第四季度'; break;
+            default: quarter = '未知季度';
+          }
+          return `${year}年${quarter}`;
+        case 'year':
+          return `${year}年`;
+        default:
+          return `${year}年${monthNum}月`;
+      }
     }
   }
 };
@@ -517,6 +623,49 @@ export default {
   border-radius: 4px;
   font-size: 0.9rem;
   min-width: 120px;
+}
+
+.target-period-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.period-tab {
+  padding: 8px 16px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.period-tab.active {
+  background-color: #1976d2;
+  color: white;
+}
+
+.period-options {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.period-option {
+  padding: 8px 16px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.period-option.active {
+  background-color: #1976d2;
+  color: white;
+  border-color: #1976d2;
 }
 
 .table-container {
@@ -801,5 +950,25 @@ export default {
 .current-value {
   font-size: 0.8rem;
   color: #666;
+}
+
+.period-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: white;
+  background-color: #1976d2;
+}
+
+.period-badge.period-month {
+  background-color: #1976d2;
+}
+
+.period-badge.period-quarter {
+  background-color: #1565c0;
+}
+
+.period-badge.period-year {
+  background-color: #15569b;
 }
 </style> 

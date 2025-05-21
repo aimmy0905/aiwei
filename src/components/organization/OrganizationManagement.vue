@@ -126,6 +126,7 @@
                     <th>姓名</th>
                     <th>所属部门</th>
                     <th>职位</th>
+                    <th>角色</th>
                     <th>账号信息</th>
                     <th>操作</th>
                   </tr>
@@ -135,6 +136,7 @@
                     <td>{{ employee.name }}</td>
                     <td>{{ employee.department }}</td>
                     <td>{{ employee.position }}</td>
+                    <td>{{ employee.role || '未设置' }}</td>
                     <td>{{ employee.account }}</td>
                     <td class="actions-cell">
                       <button class="icon-btn small edit-btn" @click="editEmployee(employee)">✏️</button>
@@ -142,7 +144,7 @@
                     </td>
                   </tr>
                   <tr v-if="filteredEmployees.length === 0">
-                    <td colspan="5" class="empty-message">暂无员工数据</td>
+                    <td colspan="6" class="empty-message">暂无员工数据</td>
                   </tr>
                 </tbody>
               </table>
@@ -150,39 +152,111 @@
             
             <!-- 权限设置选项卡 -->
             <div v-if="activeTab === 2" class="tab-pane">
-              <h3>部门权限设置</h3>
-              <div class="permission-list">
-                <div class="permission-item">
+              <h3>部门角色权限设置</h3>
+              
+              <div class="role-selector">
+                <label for="role-select">选择角色：</label>
+                <select id="role-select" v-model="selectedRole" class="role-select" @change="changeSelectedRole">
+                  <option v-for="role in departmentRoles" :key="role.id" :value="role.id">
+                    {{ role.name }}
+                  </option>
+                </select>
+                <button class="btn primary-btn small" @click="showAddRoleDialog = true">添加角色</button>
+              </div>
+              
+              <div class="role-permissions">
+                <div class="select-all-container">
                   <input 
                     type="checkbox" 
-                    id="viewData" 
-                    v-model="departmentPermissions.viewData"
+                    id="selectAll" 
+                    v-model="selectAllPermissions"
+                    @change="toggleAllPermissions"
                   />
-                  <label for="viewData">查看数据权限</label>
+                  <label for="selectAll"><strong>全选</strong></label>
                 </div>
-                <div class="permission-item">
-                  <input 
-                    type="checkbox" 
-                    id="editData" 
-                    v-model="departmentPermissions.editData"
-                  />
-                  <label for="editData">编辑数据权限</label>
+                
+                <h4>数据权限</h4>
+                <div class="permission-list">
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="viewData" 
+                      v-model="rolePermissions.viewData"
+                    />
+                    <label for="viewData">查看数据权限</label>
+                  </div>
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="editData" 
+                      v-model="rolePermissions.editData"
+                    />
+                    <label for="editData">编辑数据权限</label>
+                  </div>
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="exportData" 
+                      v-model="rolePermissions.exportData"
+                    />
+                    <label for="exportData">导出数据权限</label>
+                  </div>
                 </div>
-                <div class="permission-item">
-                  <input 
-                    type="checkbox" 
-                    id="manageMember" 
-                    v-model="departmentPermissions.manageMember"
-                  />
-                  <label for="manageMember">管理成员权限</label>
+                
+                <h4>成员管理权限</h4>
+                <div class="permission-list">
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="viewMember" 
+                      v-model="rolePermissions.viewMember"
+                    />
+                    <label for="viewMember">查看成员权限</label>
+                  </div>
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="addMember" 
+                      v-model="rolePermissions.addMember"
+                    />
+                    <label for="addMember">添加成员权限</label>
+                  </div>
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="editMember" 
+                      v-model="rolePermissions.editMember"
+                    />
+                    <label for="editMember">编辑成员权限</label>
+                  </div>
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="deleteMember" 
+                      v-model="rolePermissions.deleteMember"
+                    />
+                    <label for="deleteMember">删除成员权限</label>
+                  </div>
                 </div>
-                <div class="permission-item">
-                  <input 
-                    type="checkbox" 
-                    id="viewReport" 
-                    v-model="departmentPermissions.viewReport"
-                  />
-                  <label for="viewReport">查看报表权限</label>
+                
+                <h4>报表权限</h4>
+                <div class="permission-list">
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="viewReport" 
+                      v-model="rolePermissions.viewReport"
+                    />
+                    <label for="viewReport">查看报表权限</label>
+                  </div>
+                  <div class="permission-item">
+                    <input 
+                      type="checkbox" 
+                      id="generateReport" 
+                      v-model="rolePermissions.generateReport"
+                    />
+                    <label for="generateReport">生成报表权限</label>
+                  </div>
                 </div>
               </div>
               
@@ -311,9 +385,14 @@
                     <td>{{ employee.customerRatingScore }}</td>
                     <td>{{ employee.score }}</td>
                     <td>
-                      <button class="btn primary-btn small" @click="showPerformanceDetail(employee)">
-                        查看详情
-                      </button>
+                      <div class="actions-cell">
+                        <button class="btn primary-btn small" @click="showPerformanceDetail(employee)">
+                          查看详情
+                        </button>
+                        <button class="btn secondary-btn small" @click="rateEmployeeQuality(employee)">
+                          评分
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   <tr v-if="filteredPerformance.length === 0">
@@ -436,6 +515,24 @@
                 placeholder="请输入职位"
                 required
               />
+            </div>
+            
+            <div class="form-group">
+              <label for="emp-role">角色</label>
+              <select 
+                id="emp-role"
+                v-model="employeeForm.roleId"
+                required
+              >
+                <option value="">请选择角色</option>
+                <option 
+                  v-for="role in departmentRoles" 
+                  :key="role.id" 
+                  :value="role.id"
+                >
+                  {{ role.name }}
+                </option>
+              </select>
             </div>
             
             <div class="form-group">
@@ -737,6 +834,98 @@
         </div>
       </div>
     </div>
+    
+    <!-- 添加角色对话框 -->
+    <div v-if="showAddRoleDialog" class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3>{{ editingRole ? '编辑角色' : '添加角色' }}</h3>
+          <button class="close-btn" @click="showAddRoleDialog = false">×</button>
+        </div>
+        <div class="modal-body">
+          <form ref="roleForm">
+            <div class="form-group">
+              <label for="role-name">角色名称</label>
+              <input 
+                id="role-name"
+                v-model="roleForm.name"
+                type="text" 
+                placeholder="请输入角色名称"
+                required
+              />
+            </div>
+            
+            <div class="form-group">
+              <label for="role-desc">角色描述</label>
+              <textarea 
+                id="role-desc"
+                v-model="roleForm.description"
+                rows="3"
+                placeholder="请输入角色描述"
+              ></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn secondary-btn" @click="showAddRoleDialog = false">取消</button>
+          <button class="btn primary-btn" @click="saveRole">保存</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 个人素质评分对话框 -->
+    <div v-if="showQualityRatingDialog" class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3>个人素质评分 - {{ ratingEmployee ? ratingEmployee.name : '' }}</h3>
+          <button class="close-btn" @click="showQualityRatingDialog = false">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="rating-form">
+            <div v-for="(item, index) in qualityRatingItems" :key="index" class="rating-item">
+              <div class="rating-item-header">
+                <span class="rating-label">{{ item.name }}</span>
+                <span class="rating-value">{{ item.score }}分</span>
+              </div>
+              <div class="score-slider-container">
+                <input 
+                  type="range" 
+                  v-model="item.score" 
+                  min="0" 
+                  max="10" 
+                  step="0.5" 
+                  class="score-slider"
+                />
+                <div class="score-marks">
+                  <span>0</span>
+                  <span>5</span>
+                  <span>10</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="rating-summary">
+              <div class="summary-label">平均分</div>
+              <div class="summary-score">{{ calculateQualityAverageScore() }}分</div>
+            </div>
+            
+            <div class="form-group">
+              <label for="rating-comment">评分备注</label>
+              <textarea 
+                id="rating-comment"
+                v-model="qualityRatingComment"
+                rows="3"
+                placeholder="请输入评分备注"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn secondary-btn" @click="showQualityRatingDialog = false">取消</button>
+          <button class="btn primary-btn" @click="saveQualityRating">保存评分</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -992,10 +1181,49 @@ export default {
         name: '',
         position: '',
         account: '',
-        departmentId: null
+        departmentId: null,
+        roleId: null
       },
       validEmployeeForm: false,
-      employeeToDelete: null
+      employeeToDelete: null,
+      
+      // 角色相关
+      departmentRoles: [
+        { id: 1, name: '部门总监', description: '部门最高管理者' },
+        { id: 2, name: '部门经理', description: '部门日常管理者' },
+        { id: 3, name: '部门员工', description: '普通员工' }
+      ],
+      selectedRole: 1,
+      selectAllPermissions: false,
+      rolePermissions: {
+        viewData: true,
+        editData: false,
+        exportData: false,
+        viewMember: true,
+        addMember: false,
+        editMember: false,
+        deleteMember: false,
+        viewReport: true,
+        generateReport: false
+      },
+      showAddRoleDialog: false,
+      editingRole: null,
+      roleForm: {
+        name: '',
+        description: ''
+      },
+      
+      // 个人素质评分相关
+      showQualityRatingDialog: false,
+      ratingEmployee: null,
+      qualityRatingItems: [
+        { name: '沟通能力', score: 8 },
+        { name: '专业知识', score: 8 },
+        { name: '团队协作', score: 8 },
+        { name: '解决问题', score: 8 },
+        { name: '执行力', score: 8 }
+      ],
+      qualityRatingComment: ''
     }
   },
   computed: {
@@ -1210,7 +1438,8 @@ export default {
         name: employee.name,
         position: employee.position,
         account: employee.account,
-        departmentId: this.activeDepartment ? this.activeDepartment.id : null
+        departmentId: this.activeDepartment ? this.activeDepartment.id : null,
+        roleId: employee.role ? employee.role.id : null
       };
       this.showAddEmployeeDialog = true;
     },
@@ -1227,7 +1456,8 @@ export default {
             name: this.employeeForm.name,
             position: this.employeeForm.position,
             account: this.employeeForm.account,
-            department: this.activeDepartment.name
+            department: this.activeDepartment.name,
+            role: this.employeeForm.roleId ? this.departmentRoles.find(r => r.id === this.employeeForm.roleId) : null
           };
         }
       } else {
@@ -1237,7 +1467,8 @@ export default {
           name: this.employeeForm.name,
           position: this.employeeForm.position,
           account: this.employeeForm.account,
-          department: this.activeDepartment.name
+          department: this.activeDepartment.name,
+          role: this.employeeForm.roleId ? this.departmentRoles.find(r => r.id === this.employeeForm.roleId) : null
         };
         
         // 确保目标部门有employees数组
@@ -1308,6 +1539,147 @@ export default {
     showPerformanceDetail(employee) {
       this.selectedEmployee = employee;
       this.showPerformanceDetailDialog = true;
+    },
+    
+    // 绩效评估相关方法
+    rateEmployeeQuality(employee) {
+      this.ratingEmployee = employee;
+      
+      // 如果员工已有评分数据则加载
+      if (employee.qualityRatings && employee.qualityRatings.length) {
+        this.qualityRatingItems = [...employee.qualityRatings];
+      } else {
+        // 否则重置为默认值
+        this.qualityRatingItems = [
+          { name: '沟通能力', score: 8 },
+          { name: '专业知识', score: 8 },
+          { name: '团队协作', score: 8 },
+          { name: '解决问题', score: 8 },
+          { name: '执行力', score: 8 }
+        ];
+      }
+      
+      this.qualityRatingComment = employee.qualityRatingComment || '';
+      this.showQualityRatingDialog = true;
+    },
+    
+    calculateQualityAverageScore() {
+      if (!this.qualityRatingItems.length) return 0;
+      
+      const sum = this.qualityRatingItems.reduce((acc, item) => acc + parseFloat(item.score), 0);
+      return (sum / this.qualityRatingItems.length).toFixed(1);
+    },
+    
+    saveQualityRating() {
+      if (!this.ratingEmployee) return;
+      
+      // 更新员工的评分数据
+      const averageScore = this.calculateQualityAverageScore();
+      
+      // 在实际应用中，这里应该发送请求到服务器保存数据
+      // 这里我们直接更新前端数据
+      const employeeIndex = this.departmentPerformance.employees.findIndex(e => e.name === this.ratingEmployee.name);
+      
+      if (employeeIndex > -1) {
+        this.departmentPerformance.employees[employeeIndex].qualityRatings = [...this.qualityRatingItems];
+        this.departmentPerformance.employees[employeeIndex].qualityScore = averageScore;
+        this.departmentPerformance.employees[employeeIndex].qualityRatingComment = this.qualityRatingComment;
+        
+        // 重新计算总分
+        const employee = this.departmentPerformance.employees[employeeIndex];
+        const salesScore = parseFloat(employee.salesScore) || 0;
+        const roiScore = parseFloat(employee.roiScore) || 0;
+        const rebateScore = parseFloat(employee.rebateScore) || 0;
+        const progressScore = parseFloat(employee.progressScore) || 0;
+        const customerScore = parseFloat(employee.customerRatingScore) || 0;
+        const qualityScore = parseFloat(averageScore) || 0;
+        
+        // 假设各项权重均为1/6
+        employee.score = ((salesScore + roiScore + rebateScore + progressScore + customerScore + qualityScore) / 6).toFixed(1);
+      }
+      
+      this.showQualityRatingDialog = false;
+    },
+    
+    // 角色相关方法
+    changeSelectedRole() {
+      // 实现角色选择的逻辑
+      // 在实际应用中，这里应该从服务器获取该角色的权限设置
+      // 这里我们模拟不同角色的默认权限
+      
+      if (this.selectedRole === 1) { // 部门总监
+        this.rolePermissions = {
+          viewData: true,
+          editData: true,
+          exportData: true,
+          viewMember: true,
+          addMember: true,
+          editMember: true,
+          deleteMember: true,
+          viewReport: true,
+          generateReport: true
+        };
+        this.selectAllPermissions = true;
+      } else if (this.selectedRole === 2) { // 部门经理
+        this.rolePermissions = {
+          viewData: true,
+          editData: true,
+          exportData: true,
+          viewMember: true,
+          addMember: true,
+          editMember: true,
+          deleteMember: false,
+          viewReport: true,
+          generateReport: true
+        };
+        this.selectAllPermissions = false;
+      } else if (this.selectedRole === 3) { // 部门员工
+        this.rolePermissions = {
+          viewData: true,
+          editData: false,
+          exportData: false,
+          viewMember: true,
+          addMember: false,
+          editMember: false,
+          deleteMember: false,
+          viewReport: true,
+          generateReport: false
+        };
+        this.selectAllPermissions = false;
+      }
+    },
+    
+    toggleAllPermissions() {
+      // 全选或全不选逻辑
+      Object.keys(this.rolePermissions).forEach(key => {
+        this.rolePermissions[key] = this.selectAllPermissions;
+      });
+    },
+    
+    saveRole() {
+      if (!this.$refs.roleForm.validate()) return;
+      
+      if (this.editingRole) {
+        // 更新角色逻辑
+        const index = this.departmentRoles.findIndex(r => r.id === this.editingRole.id);
+        if (index > -1) {
+          this.departmentRoles[index] = {
+            ...this.departmentRoles[index],
+            name: this.roleForm.name,
+            description: this.roleForm.description
+          };
+        }
+      } else {
+        // 添加新角色逻辑
+        const newId = Math.max(...this.departmentRoles.map(r => r.id), 0) + 1;
+        this.departmentRoles.push({
+          id: newId,
+          name: this.roleForm.name,
+          description: this.roleForm.description
+        });
+      }
+      
+      this.showAddRoleDialog = false;
     }
   }
 }
@@ -2007,5 +2379,108 @@ export default {
 
 .current-value {
   color: #666;
+}
+
+/* 角色选择器样式 */
+.role-selector {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.role-select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  min-width: 150px;
+}
+
+.role-permissions {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.select-all-container {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* 评分对话框样式 */
+.rating-form {
+  padding: 10px;
+}
+
+.rating-item {
+  margin-bottom: 20px;
+}
+
+.rating-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.rating-label {
+  font-weight: bold;
+}
+
+.rating-value {
+  color: #1976d2;
+  font-weight: bold;
+}
+
+.score-slider-container {
+  margin-top: 10px;
+}
+
+.score-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 8px;
+  border-radius: 5px;
+  background: #ddd;
+  outline: none;
+}
+
+.score-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1976d2;
+  cursor: pointer;
+}
+
+.score-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+  margin-top: 5px;
+}
+
+.rating-summary {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f5f5f5;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin: 20px 0;
+}
+
+.summary-label {
+  font-weight: bold;
+}
+
+.summary-score {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1976d2;
 }
 </style> 

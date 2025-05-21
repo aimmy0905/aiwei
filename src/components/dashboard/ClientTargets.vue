@@ -55,7 +55,6 @@
       <div class="target-card">
         <div class="target-title">
           <h3>利润目标</h3>
-          <button class="view-details-btn">查看明细</button>
         </div>
         
         <div class="target-content">
@@ -99,7 +98,6 @@
       <div class="target-card">
         <div class="target-title">
           <h3>ROI目标</h3>
-          <button class="view-details-btn">查看明细</button>
         </div>
         
         <div class="target-content">
@@ -187,7 +185,6 @@
       <div class="target-card">
         <div class="target-title">
           <h3>用户数目标</h3>
-          <button class="view-details-btn">查看明细</button>
         </div>
         
         <div class="target-content">
@@ -228,6 +225,31 @@
       </div>
     </div>
     
+    <!-- 添加整体项目目标进度完成情况卡片 -->
+    <div class="overall-target-card">
+      <h3 class="overall-title">整体项目目标进度</h3>
+      <div class="overall-content">
+        <div class="overall-progress">
+          <div class="progress-bar-container">
+            <div class="progress-bar-label">
+              <span>整体进度</span>
+              <span>{{ calculateOverallProgress() }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar-fill" :style="{width: `${calculateOverallProgress()}%`}"></div>
+            </div>
+          </div>
+          <div class="progress-status">
+            <div class="status-indicator" :class="getProgressStatusClass()">
+              <i class="status-icon" v-if="isProgressAhead()">▲</i>
+              <i class="status-icon" v-else>▼</i>
+              <span class="status-text">{{ isProgressAhead() ? '进度提前' : '进度滞后' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="target-summary">
       <h3 class="summary-title">目标小结</h3>
       <div class="summary-content">
@@ -258,9 +280,34 @@ export default {
       default: '全部项目'
     }
   },
+  computed: {
+    targetBreakdown() {
+      return {
+        sales: { label: '销售目标' },
+        profit: { label: '利润目标' },
+        roi: { label: '投资回报' },
+        cost: { label: '成本控制' },
+        users: { label: '用户增长' }
+      };
+    }
+  },
   methods: {
     formatNumber(num) {
       return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+    calculateOverallProgress() {
+      const targets = this.clientTargets;
+      // 计算所有目标的平均进度
+      const total = Object.values(targets).reduce((sum, target) => sum + target.progress, 0);
+      return Math.round(total / Object.keys(targets).length);
+    },
+    isProgressAhead() {
+      // 假设项目已进行的时间百分比，这里简单用70%表示
+      const projectTimePercent = 70;
+      return this.calculateOverallProgress() > projectTimePercent;
+    },
+    getProgressStatusClass() {
+      return this.isProgressAhead() ? 'status-ahead' : 'status-behind';
     }
   }
 }
@@ -388,6 +435,8 @@ export default {
   text-anchor: middle;
   dominant-baseline: middle;
   font-weight: 500;
+  transform: rotate(0deg);
+  writing-mode: horizontal-tb;
 }
 
 .target-details {
@@ -455,5 +504,127 @@ export default {
 
 .edit-summary-btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.overall-target-card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.overall-title {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.overall-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.overall-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.progress-bar-container {
+  flex: 1;
+}
+
+.progress-bar-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.progress-bar {
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #1976d2;
+  border-radius: 5px;
+  transition: width 0.6s ease;
+}
+
+.progress-status {
+  min-width: 120px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.status-ahead {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.status-behind {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+.status-icon {
+  margin-right: 5px;
+}
+
+.target-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.breakdown-label {
+  min-width: 80px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.breakdown-progress-bar {
+  flex: 1;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.breakdown-progress-fill {
+  height: 100%;
+  background-color: #1976d2;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.breakdown-value {
+  min-width: 40px;
+  text-align: right;
+  font-size: 0.9rem;
+  color: #333;
+  font-weight: 500;
 }
 </style> 
